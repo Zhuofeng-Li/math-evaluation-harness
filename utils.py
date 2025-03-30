@@ -47,7 +47,7 @@ def lower_keys(example):
     return new_example 
 
 
-def load_prompt(data_name, prompt_type):
+def load_prompt(data_name, prompt_type): # TODO: update
     if data_name in ['gsm_hard', 'svamp', 'tabmwp', 'asdiv', 'mawps']:
         data_name = "gsm8k"
     if data_name in ['math_oai', "hungarian_exam"]:
@@ -75,7 +75,7 @@ def load_prompt(data_name, prompt_type):
 
 def construct_prompt(example, data_name, args):
     # Base models
-    if args.prompt_type in ["direct", "cot", "pal", "tool-integrated"]:
+    if args.prompt_type in ["direct", "cot", "pal", "tool-integrated"]: 
         demo_prompt = load_prompt(data_name, args.prompt_type)
         if args.prompt_type in ["direct", "cot"]:
             if data_name in ["minerva_math", "math", "math_oai", "mmlu_stem", "sat_math", "mathqa", "hungarian_exam"]:
@@ -114,6 +114,27 @@ def construct_prompt(example, data_name, args):
             'with "The answer is: ".\n\n{instruction}\n\nAssistant:'
         )
         full_prompt = full_prompt.format(instruction=example['question'])
+    elif args.prompt_type == "qwen-r1":
+        full_prompt = (
+        "<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n"
+        "<|im_start|>user\nAnswer the following question. You must conduct reasoning inside <think> and </think>, and provide the final answer directly inside <answer> and </answer> without detailed explanations. For example: <answer>42</answer> Question: {instruction}<|im_end|>\n"
+        "<|im_start|>assistant\n"
+        )
+        full_prompt = full_prompt.format(instruction=example['question'])
+    elif args.prompt_type == "pot-qwen-r1":
+        full_prompt = (
+        "<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n"
+        "<|im_start|>user\nAnswer the following question.  You must conduct reasoning inside <think> and </think>. If, during reasoning, you determine that calculations or logical operations are needed, write Python code inside <python> and </python> to call the Python interpreter, ensuring that the desired result is placed inside the print function to interact with the Python interpreter. The output of the print function or any error message will be captured and returned from the Python interpreter between <information> and </information>. You can use the Python interpreter as many times as necessary. If no further calculations or logical operations are required, provide the final answer directly inside <answer> and </answer> without detailed explanations. For example: <answer>42</answer> Question: {instruction}<|im_end|>\n"
+        "<|im_start|>assistant\n"
+        )
+        full_prompt = full_prompt.format(instruction=example['question'])
+    elif args.prompt_type == "qwen25-math-cot":
+        full_prompt = (
+        "<|im_start|>system\nPlease reason step by step, and put your final answer within \\boxed{{}}.<|im_end|>\n"
+        "<|im_start|>user\n{input}<|im_end|>\n"
+        "<|im_start|>assistant\n"
+        )
+        full_prompt = full_prompt.format(input=example['question'])
     else:
         raise NotImplementedError(args.prompt_type)
     return full_prompt

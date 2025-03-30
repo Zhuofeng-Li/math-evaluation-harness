@@ -66,6 +66,15 @@ def is_execution_success(output):
     return success
 
 
+def extract_pot_program(prediction:str=None) -> str:
+    pattern = r'<python>(.*?)</python>'
+    match = re.search(pattern, prediction, re.DOTALL)
+    if match:
+        content = match.group(1).strip()  # Return only the content inside the tags
+        return content
+    else:
+        return ""
+    
 def extract_program(text:str=None, trajectory:list=None, last_only=False) -> str:
     assert text is not None or trajectory is not None, "Either text or trajectory should be provided."
     if trajectory is None:

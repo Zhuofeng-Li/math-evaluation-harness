@@ -235,6 +235,8 @@ def extract_answer(pred_str, data_name):
         # minerva_math
         tmp = pred_str.split('final answer is $', 1)[1]
         pred = tmp.split('$. I hope', 1)[0].strip()
+    elif '<answer>' in pred_str and '</answer>' in pred_str:
+        pred = extract_solution(pred_str)
     elif 'boxed' in pred_str:
         ans = pred_str.split('boxed')[-1]
         if len(ans) == 0:
@@ -291,9 +293,20 @@ def parse_ground_truth(example: Dict[str, Any], data_name):
         return example['gt_cot'], gt_ans
 
     # parse ground truth
-    if data_name in ["math", "math_oai", "minerva_math", "ocw", "amps", "hungarian_exam"]:
+    if data_name in ["math", "math_oai", "minerva_math", "ocw", "amps", "hungarian_exam", "math500"]:
         gt_cot = example['solution']
         gt_ans = extract_answer(gt_cot, data_name)
+    elif data_name == "olympiadbench":
+        gt_cot, gt_ans = None, example["final_answer"][0].strip("$")
+    elif data_name in [
+        "aime24",
+        "amc23",
+        "cmath",
+        "gaokao2024_I",
+        "gaokao2024_II",
+        "imo2024",
+    ]:
+        gt_cot, gt_ans = None, example["answer"]
     elif data_name in ['mathqa']:
         gt_cot = example['rationale']
         gt_ans = example['correct'].upper()
@@ -399,6 +412,17 @@ def parse_question(example, data_name):
     return question.strip()
 
 
+def extract_solution(solution_str):
+    """Extract the equation from the solution string."""
+    answer_pattern = r'<answer>(.*?)</answer>'
+    match = re.finditer(answer_pattern, solution_str, re.DOTALL)
+    matches = list(match)
+
+    if len(matches) == 0:
+        return None
+    else:
+        return matches[0].group(1).strip()
+    
 def run_execute(executor, result, prompt_type, data_name, execute=False):
     if not result or result == 'error':
         return None, None
@@ -409,6 +433,8 @@ def run_execute(executor, result, prompt_type, data_name, execute=False):
     elif prompt_type in ["pot", "pal"] and execute:
         code = extract_program(result)
         prediction, report = executor.apply(code)
+    # elif prompt_type == "qwen-r1":
+    #     prediction = extract_solution(result)
     else:
         prediction = extract_answer(result, data_name)
 

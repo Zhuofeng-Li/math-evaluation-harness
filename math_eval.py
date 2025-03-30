@@ -138,7 +138,7 @@ def main(llm, tokenizer, data_name, args):
         full_prompt = construct_prompt(example, data_name, args)
 
         if idx == args.start:
-            print(full_prompt)
+            print("full_prompt:", full_prompt)
 
         sample = {'idx': idx, 'question': example['question'], 'gt_cot': gt_cot, 'gt': gt_ans, 'prompt': full_prompt}
 
@@ -156,17 +156,21 @@ def main(llm, tokenizer, data_name, args):
     remain_prompts = [(i, prompt) for i, prompt in enumerate(remain_prompts)]
     end_prompts = []
 
-    max_func_call = 1 if args.prompt_type in ['cot', 'pal'] else 4
+    max_func_call = 1 if args.prompt_type in ['cot', 'pal'] else 3
 
     # stop words TODO: make it more general
-    stop_words = ["</s>"]
+    stop_words = ["</s>", "<|im_end|>", "<|endoftext|>"]
 
     if args.prompt_type in ['cot']:
         stop_words.extend(["\n\nQuestion:", "\n\nProblem:"])
     if args.prompt_type in ['pal', 'tool-integrated', 'tora']:
-        stop_words.extend(["\n\n---", "```output"])
+        stop_words.extend(["\n\n---", "```output"]) # TODO: check
     elif args.prompt_type in ['wizard_zs', 'platypus_fs']:
         stop_words.extend(["Instruction", "Response"])
+    elif "qwen" in args.prompt_type:
+        stop_words.extend(["assistant", "user", "_end", "_start"])
+        if args.prompt_type == "pot-qwen-r1":
+            stop_words.extend(["</python>"])
     print("Stop words:", stop_words)
 
     # start inference
@@ -216,22 +220,37 @@ def main(llm, tokenizer, data_name, args):
                 remain_codes.append(output)
             elif args.prompt_type == "cot":
                 end_prompts.append((i, query))
+            elif args.prompt_type == "pot-qwen-r1":
+                if "<python>" in output:
+                    output += "</python>"
+                    program = extract_pot_program(output)
+                    query += "</python>"
+                    remain_prompts.append((i, query))
+                    remain_codes.append(program)
+                else:
+                    end_prompts.append((i, query))
             elif ("boxed" not in output and output.endswith("```")):
                 program = extract_program(query)
                 remain_prompts.append((i, query))
                 remain_codes.append(program)
             else:
                 end_prompts.append((i, query))
+        
+        print("remain_codes:", remain_codes)
 
         # execute the remain prompts
         remain_results = executor.batch_apply(remain_codes)
+        print("remain_results:", remain_results)
         for k in range(len(remain_prompts)):
             i, query = remain_prompts[k]
             res, report = remain_results[k]
             exec_result = res if res else report
-            if "pal" in args.prompt_type:
-                exec_result = "\\boxed{" + exec_result + "}"
-            exec_result = f"\n```output\n{exec_result}\n```\n"
+            if args.prompt_type == "pot-qwen-r1":
+                exec_result = f"\n\n<information>{exec_result}</information>\n\n"
+            else:
+                if "pal" in args.prompt_type:
+                    exec_result = "\\boxed{" + exec_result + "}"
+                exec_result = f"\n```output\n{exec_result}\n```\n"
             query += exec_result
             # not end
             if epoch == max_func_call - 1:

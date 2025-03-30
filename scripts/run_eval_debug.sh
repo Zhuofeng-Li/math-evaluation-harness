@@ -1,7 +1,7 @@
 set -ex
 
-PROMPT_TYPE="pot-qwen-r1"
-MODEL_NAME_OR_PATH="ZhuofengLi/pot-r1-grpo-qwen2.5-7b-Instruct"
+PROMPT_TYPE="qwen25-math-cot"
+MODEL_NAME_OR_PATH="ZhuofengLi/pot-r1-grpo-qwen2.5-1.5b-Instruct"
 
 # ======= Base Models =======
 # PROMPT_TYPE="cot" # direct / cot / pal / tool-integrated
@@ -25,7 +25,7 @@ NUM_TEST_SAMPLE=-1
 
 
 # single-gpu
-CUDA_VISIBLE_DEVICES=6,7 TOKENIZERS_PARALLELISM=false \
+CUDA_VISIBLE_DEVICES=0 TOKENIZERS_PARALLELISM=false \
 python3 -u math_eval.py \
     --model_name_or_path ${MODEL_NAME_OR_PATH} \
     --output_dir ${OUTPUT_DIR} \
@@ -41,6 +41,8 @@ python3 -u math_eval.py \
     --end -1 \
     --save_outputs \
     --use_vllm \
+    --overwrite \
+    2>&1 | tee tmp.log
 
 
 # multi-gpu
