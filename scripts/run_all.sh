@@ -1,31 +1,17 @@
 set -ex
 
-PROMPT_TYPE="tora"
-MODEL_NAME_OR_PATH="./model"
-
-# ======= Base Models =======
-# PROMPT_TYPE="cot" # direct / cot / pal / tool-integrated
-# MODEL_NAME_OR_PATH=${HF_MODEL_DIR}/mistral/Mistral-7B-v0.1
-# MODEL_NAME_OR_PATH=${HF_MODEL_DIR}/llemma/llemma_7b
-# MODEL_NAME_OR_PATH=${HF_MODEL_DIR}/internlm/internlm2-math-base-7b
-# MODEL_NAME_OR_PATH=${HF_MODEL_DIR}/deepseek/deepseek-math-7b-base
-
-
-# ======= SFT Models =======
-# PROMPT_TYPE="deepseek-math" # self-instruct / tora / wizard_zs / deepseek-math / kpmath
-# MODEL_NAME_OR_PATH=${HF_MODEL_DIR}/deepseek/deepseek-math-7b-rl
-# MODEL_NAME_OR_PATH=${HF_MODEL_DIR}/deepseek/deepseek-math-7b-instruct
-
+PROMPT_TYPE="qwen25-math-cot"
+MODEL_NAME_OR_PATH="hkust-nlp/Qwen-2.5-Math-7B-SimpleRL-Zoo"
 
 OUTPUT_DIR=results/${MODEL_NAME_OR_PATH}
-# DATA_NAMES="minerva_math"
+# DATA_NAMES="aime24"
 DATA_NAMES="gsm8k,math500,minerva_math,olympiadbench,aime24,amc23"
 SPLIT="test"
 NUM_TEST_SAMPLE=-1
 
 
 # single-gpu
-CUDA_VISIBLE_DEVICES=6,7 TOKENIZERS_PARALLELISM=false \
+CUDA_VISIBLE_DEVICES=4,5,6,7 TOKENIZERS_PARALLELISM=false \
 python3 -u math_eval.py \
     --model_name_or_path ${MODEL_NAME_OR_PATH} \
     --output_dir ${OUTPUT_DIR} \
@@ -35,13 +21,15 @@ python3 -u math_eval.py \
     --num_test_sample ${NUM_TEST_SAMPLE} \
     --seed 0 \
     --temperature 0 \
-    --n_sampling 1 \
+    --n_sampling 8 \
     --top_p 1 \
     --start 0 \
     --end -1 \
     --save_outputs \
+    --max_tokens_per_call 3072 \
     --use_vllm \
-    --overwrite
+    --overwrite \
+    2>&1 | tee tmp.log
 
 
 # multi-gpu

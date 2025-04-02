@@ -156,15 +156,15 @@ def main(llm, tokenizer, data_name, args):
     remain_prompts = [(i, prompt) for i, prompt in enumerate(remain_prompts)]
     end_prompts = []
 
-    max_func_call = 1 if args.prompt_type in ['cot', 'pal'] else 3
+    max_func_call = 1 if args.prompt_type in ['cot', 'pal'] else 4
 
     # stop words TODO: make it more general
     stop_words = ["</s>", "<|im_end|>", "<|endoftext|>"]
 
     if args.prompt_type in ['cot']:
         stop_words.extend(["\n\nQuestion:", "\n\nProblem:"])
-    if args.prompt_type in ['pal', 'tool-integrated', 'tora']:
-        stop_words.extend(["\n\n---", "```output"]) # TODO: check
+    if args.prompt_type in ['pal', 'tool-integrated', 'tora', 'torl', 'qwen-torl']:
+        stop_words.extend(["\n\n---", "```output"]) 
     elif args.prompt_type in ['wizard_zs', 'platypus_fs']:
         stop_words.extend(["Instruction", "Response"])
     elif "qwen" in args.prompt_type:
