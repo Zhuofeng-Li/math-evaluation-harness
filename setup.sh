@@ -1,3 +1,3 @@
-conda create -n math python=3.10
+conda create -n math python=3.10 -y
 conda activate math
 pip install -r requirements.txt
