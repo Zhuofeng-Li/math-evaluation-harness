@@ -138,7 +138,7 @@ def main(llm, tokenizer, data_name, args):
         full_prompt = construct_prompt(example, data_name, args)
 
         if idx == args.start:
-            print(full_prompt)
+            print("full_prompt:", full_prompt)
 
         sample = {'idx': idx, 'question': example['question'], 'gt_cot': gt_cot, 'gt': gt_ans, 'prompt': full_prompt}
 
@@ -159,14 +159,16 @@ def main(llm, tokenizer, data_name, args):
     max_func_call = 1 if args.prompt_type in ['cot', 'pal'] else 4
 
     # stop words TODO: make it more general
-    stop_words = ["</s>"]
+    stop_words = ["</s>", "<|im_end|>", "<|endoftext|>"]
 
     if args.prompt_type in ['cot']:
         stop_words.extend(["\n\nQuestion:", "\n\nProblem:"])
     if args.prompt_type in ['pal', 'tool-integrated', 'tora']:
-        stop_words.extend(["\n\n---", "```output"])
-    elif args.prompt_type in ['wizard_zs', 'platypus_fs']:
+        stop_words.extend(["\n\n---", "```output"]) 
+    if args.prompt_type in ['wizard_zs', 'platypus_fs']:
         stop_words.extend(["Instruction", "Response"])
+    if "qwen" in args.prompt_type:
+        stop_words.extend(["assistant", "user", "_end", "_start"])
     print("Stop words:", stop_words)
 
     # start inference
@@ -222,7 +224,7 @@ def main(llm, tokenizer, data_name, args):
                 remain_codes.append(program)
             else:
                 end_prompts.append((i, query))
-
+        
         # execute the remain prompts
         remain_results = executor.batch_apply(remain_codes)
         for k in range(len(remain_prompts)):

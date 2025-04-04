@@ -291,9 +291,20 @@ def parse_ground_truth(example: Dict[str, Any], data_name):
         return example['gt_cot'], gt_ans
 
     # parse ground truth
-    if data_name in ["math", "math_oai", "minerva_math", "ocw", "amps", "hungarian_exam"]:
+    if data_name in ["math", "math_oai", "minerva_math", "ocw", "amps", "hungarian_exam", "math500"]:
         gt_cot = example['solution']
         gt_ans = extract_answer(gt_cot, data_name)
+    elif data_name == "olympiadbench":
+        gt_cot, gt_ans = None, example["final_answer"][0].strip("$")
+    elif data_name in [
+        "aime24",
+        "amc23",
+        "cmath",
+        "gaokao2024_I",
+        "gaokao2024_II",
+        "imo2024",
+    ]:
+        gt_cot, gt_ans = None, example["answer"]
     elif data_name in ['mathqa']:
         gt_cot = example['rationale']
         gt_ans = example['correct'].upper()

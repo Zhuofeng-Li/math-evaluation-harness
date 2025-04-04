@@ -75,7 +75,7 @@ def load_prompt(data_name, prompt_type):
 
 def construct_prompt(example, data_name, args):
     # Base models
-    if args.prompt_type in ["direct", "cot", "pal", "tool-integrated"]:
+    if args.prompt_type in ["direct", "cot", "pal", "tool-integrated"]: 
         demo_prompt = load_prompt(data_name, args.prompt_type)
         if args.prompt_type in ["direct", "cot"]:
             if data_name in ["minerva_math", "math", "math_oai", "mmlu_stem", "sat_math", "mathqa", "hungarian_exam"]:
@@ -91,6 +91,8 @@ def construct_prompt(example, data_name, args):
             full_prompt = demo_prompt + context
 
     # SFT models
+    elif args.prompt_type in ['torl']:
+        full_prompt = f"A conversation between User and Assistant. The user asks a question, and the Assistant solves it.\nUser: Please integrate natural language reasoning with programs to solve the problem above, and put your final answer within \\boxed{{}}.\n{example['question']}\nAssistant:"
     elif args.prompt_type in ['self-instruct', 'tora']:
         full_prompt = f"<|user|>\n{example['question']}\n<|assistant|>\n"
     elif args.prompt_type in ['self-instruct-boxed']:
@@ -114,6 +116,13 @@ def construct_prompt(example, data_name, args):
             'with "The answer is: ".\n\n{instruction}\n\nAssistant:'
         )
         full_prompt = full_prompt.format(instruction=example['question'])
+    elif args.prompt_type == "qwen25-math-cot":
+        full_prompt = (
+        "<|im_start|>system\nPlease reason step by step, and put your final answer within \\boxed{{}}.<|im_end|>\n"
+        "<|im_start|>user\n{input}<|im_end|>\n"
+        "<|im_start|>assistant\n"
+        )
+        full_prompt = full_prompt.format(input=example['question'])
     else:
         raise NotImplementedError(args.prompt_type)
     return full_prompt
