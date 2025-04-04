@@ -91,8 +91,6 @@ def construct_prompt(example, data_name, args):
             full_prompt = demo_prompt + context
 
     # SFT models
-    elif args.prompt_type in ['torl']:
-        full_prompt = f"A conversation between User and Assistant. The user asks a question, and the Assistant solves it.\nUser: Please integrate natural language reasoning with programs to solve the problem above, and put your final answer within \\boxed{{}}.\n{example['question']}\nAssistant:"
     elif args.prompt_type in ['self-instruct', 'tora']:
         full_prompt = f"<|user|>\n{example['question']}\n<|assistant|>\n"
     elif args.prompt_type in ['self-instruct-boxed']:
