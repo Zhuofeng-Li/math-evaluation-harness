@@ -39,6 +39,7 @@ def parse_args():
     parser.add_argument("--save_outputs", action="store_true")
     parser.add_argument("--overwrite", action="store_true")
     parser.add_argument("--use_safetensors", action="store_true")
+    parser.add_argument("--max_func_call", default=4, type=int)
     args = parser.parse_args()
     args.top_p = 1 if args.temperature == 0 else args.top_p # top_p must be 1 when using greedy sampling (vllm)
     return args
@@ -156,7 +157,7 @@ def main(llm, tokenizer, data_name, args):
     remain_prompts = [(i, prompt) for i, prompt in enumerate(remain_prompts)]
     end_prompts = []
 
-    max_func_call = 1 if args.prompt_type in ['cot', 'pal'] else 4
+    max_func_call = 1 if args.prompt_type in ['cot', 'pal'] else args.max_func_call
 
     # stop words TODO: make it more general
     stop_words = ["</s>", "<|im_end|>", "<|endoftext|>"]

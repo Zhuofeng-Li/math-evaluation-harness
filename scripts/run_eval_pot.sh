@@ -1,17 +1,16 @@
 set -ex
 
 PROMPT_TYPE="torl"
-MODEL_NAME_OR_PATH="/home/zhuofeng/.cache/huggingface/hub/models--GAIR--ToRL-7B/snapshots/383a9b80b1487a76c51798796bba6c62c1c5d8b0"
-
+MODEL_NAME_OR_PATH="/data/zhuofeng/ToRL/verl_checkpoints/rl.grpo_qwen.math.1.5b_math_hard_numcall1_new/global_step_310/actor/huggingface"
 OUTPUT_DIR=results/${MODEL_NAME_OR_PATH}
-DATA_NAMES="aime24"
-# DATA_NAMES="gsm8k,math500,minerva_math,olympiadbench,aime24,amc23"
+# DATA_NAMES="aime24"
+DATA_NAMES="gsm8k,math500,minerva_math,olympiadbench,aime24,amc23"
 SPLIT="test"
 NUM_TEST_SAMPLE=-1
 
 
 # single-gpu
-CUDA_VISIBLE_DEVICES=4,5,6,7 TOKENIZERS_PARALLELISM=false \
+CUDA_VISIBLE_DEVICES=5,7 TOKENIZERS_PARALLELISM=false \
 python3 -u math_eval.py \
     --model_name_or_path ${MODEL_NAME_OR_PATH} \
     --output_dir ${OUTPUT_DIR} \
@@ -28,6 +27,7 @@ python3 -u math_eval.py \
     --save_outputs \
     --max_tokens_per_call 3072 \
     --use_vllm \
+    --max_func_call 4 \
     --overwrite \
     2>&1 | tee tmp.log
 
