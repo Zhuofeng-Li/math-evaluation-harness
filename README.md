@@ -1,5 +1,13 @@
 # LLM Math Evaluation Harness
+## How to add new prompt?
+You can directly search for `torl` and check where it has been modified.
 
++ Step 1: Add your prompt in ./utils.py.
+
++ Step 2: Add your model's stop word in ./math_eval.py.
+(Note: If your model is Qwen, make sure to include "qwen" in the prompt so that Qwen-specific stop words will be enabled.)
+
+## Overview
 A unified, precise, and extensible toolkit to benchmark LLMs on various mathematical tasks 🧮✨.
 
 > 🔴🚀 **Important Notice**: We've identified variances above 5% in results from diverse math evaluation frameworks. To ensure fair and standardized comparisons across research, our toolkit strives to harmonize evaluation methods, promoting consistent and reliable math evaluation.
@@ -18,36 +26,13 @@ A unified, precise, and extensible toolkit to benchmark LLMs on various mathemat
 ## 🚀 Getting Started
 
 ### ⚙️ Environment Setup
-
-#### Option 1: Conda
-
-```
-conda create -n math_eval python=3.10
-conda activate math_eval
-```
-
-#### Option 2: Docker
-
-We suggest using vLLM docker directly:
-
-```
-docker run --network host --cap-add=SYS_ADMIN --privileged -d \
-    --entrypoint '' --name vllm \
-    --runtime nvidia --gpus all \
-    --security-opt apparmor:unconfined \
-    --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 \
-    -v /mnt:/mnt \
-    -p 8000:8000 \
-    vllm/vllm-openai:latest \
-    sleep infinity
-```
-
-### Install
-
 ```
 git clone https://github.com/ZubinGou/math-evaluation-harness.git
 cd math-evaluation-harness
-pip install -r requirements.txt
+uv venv --python 3.11
+source .venv/bin/activate
+uv pip install -r requirements.txt
+uv pip install vllm==0.8.3 setuptools
 ```
 
 ### ⚖️ Evaluation

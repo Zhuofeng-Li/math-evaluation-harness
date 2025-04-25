@@ -1,7 +1,7 @@
 set -ex
 
-PROMPT_TYPE="torl"
-MODEL_NAME_OR_PATH="/data/zhuofeng/ToRL/verl_checkpoints/rl.grpo_qwen.math.1.5b_math_hard_numcall1_new/global_step_310/actor/huggingface"
+PROMPT_TYPE="tool_math_qwen"
+MODEL_NAME_OR_PATH="VerlTool/torl-fsdp_agent-qwen_qwen2.5-math-7b-grpo-n16-b128-t1.0-lr1e-6"
 OUTPUT_DIR=results/${MODEL_NAME_OR_PATH}
 # DATA_NAMES="aime24"
 DATA_NAMES="gsm8k,math500,minerva_math,olympiadbench,aime24,amc23"
@@ -10,7 +10,7 @@ NUM_TEST_SAMPLE=-1
 
 
 # single-gpu
-CUDA_VISIBLE_DEVICES=0,1,2,3 TOKENIZERS_PARALLELISM=false \
+CUDA_VISIBLE_DEVICES=6 TOKENIZERS_PARALLELISM=false \
 python3 -u math_eval.py \
     --model_name_or_path ${MODEL_NAME_OR_PATH} \
     --output_dir ${OUTPUT_DIR} \

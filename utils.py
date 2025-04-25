@@ -91,6 +91,8 @@ def construct_prompt(example, data_name, args):
             full_prompt = demo_prompt + context
 
     # SFT models
+    elif args.prompt_type in ['tool_math_qwen']:
+        full_prompt = f"system\nA conversation between User and Assistant. The user asks a question, and the Assistant solves it. The assistant first thinks about the reasoning process in the mind and then provides the user with the answer. User: Please integrate natural language reasoning with programs to solve the problem above, and put your final answer within \\boxed{{}}.:\n\nuser\n{example['question']}\nassistant\n"
     elif args.prompt_type in ['qwen-torl']:
         full_prompt = f"<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nPlease integrate natural language reasoning with programs to solve the problem above, and put your final answer within \\boxed{{}}.\n{example['question']}<|im_end|>\n<|im_start|>assistant\n"
     elif args.prompt_type in ['torl']:

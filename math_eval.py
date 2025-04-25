@@ -164,7 +164,7 @@ def main(llm, tokenizer, data_name, args):
 
     if args.prompt_type in ['cot']:
         stop_words.extend(["\n\nQuestion:", "\n\nProblem:"])
-    if args.prompt_type in ['pal', 'tool-integrated', 'tora', 'torl', 'qwen-torl']:
+    if args.prompt_type in ['pal', 'tool-integrated', 'tora', 'torl', 'qwen-torl', 'tool_math_qwen']:
         stop_words.extend(["\n\n---", "```output"]) 
     elif args.prompt_type in ['wizard_zs', 'platypus_fs']:
         stop_words.extend(["Instruction", "Response"])
