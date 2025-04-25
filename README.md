@@ -29,10 +29,10 @@ A unified, precise, and extensible toolkit to benchmark LLMs on various mathemat
 ```
 git clone https://github.com/ZubinGou/math-evaluation-harness.git
 cd math-evaluation-harness
+pip install uv # if not install uv
 uv venv --python 3.11
 source .venv/bin/activate
 uv pip install -r requirements.txt
-uv pip install vllm==0.8.3 setuptools
 ```
 
 ### ⚖️ Evaluation
