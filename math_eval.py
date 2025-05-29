@@ -177,7 +177,7 @@ def main(llm, tokenizer, data_name, args):
 
     if args.prompt_type in ['cot']:
         stop_words.extend(["\n\nQuestion:", "\n\nProblem:"])
-    if args.prompt_type in ['pal', 'tool-integrated', 'tora', 'torl', 'qwen-torl', 'tool_math_qwen', 'tool_mathcoder_qwen']:
+    if args.prompt_type in ['pal', 'tool-integrated', 'tora', 'torl', 'qwen-torl', 'tool_math_qwen', 'tool_mathcoder_qwen', 'torl_deepmath_qwen']:
         stop_words.extend(["\n\n---", "```output"]) 
     elif args.prompt_type in ['tool_math_qwen_mtrl']:
         stop_words.extend(["\n\n---", "```output", "<|calling system for feedback|>"]) 

@@ -2,13 +2,26 @@ set -ex
 
 export CUDA_VISIBLE_DEVICES=0,1,2,3
 # NOTE: Check if the prompt type is correct
-PROMPT_TYPE="qwen-torl"
+PROMPT_TYPE="torl_deepmath_qwen"
 MODEL_NAMES=(
-    VerlTool/torl-deep_math-fsdp-qwen2.5-math-1.5b-grpo-n16-b128-t1.0-lr1e-6-830-step
-    # mergekit-community/Puffin-Qwen2.5-CodeMath
-    # Qwen/Qwen2.5-Math-7B-Instruct
-    # hkust-nlp/Qwen-2.5-Math-7B-SimpleRL-Zoo
-    # Qwen/Qwen2.5-Math-1.5B
+    VerlTool/torl-deep_math-fsdp_agent-qwen2.5-math-1.5b-grpo-n16-b128-t1.0-lr1e-6-320-step
+    # VerlTool/torl-fsdp-qwen_qwen2.5-math-1.5b-grpo-n16-b128-t1.0-lr1e-6new-no-toolusepenalty-430-step
+    # VerlTool/torl-fsdp_agent-qwen_qwen2.5-math-1.5b-grpo-n16-b128-t1.0-lr1e-6v2-reproduce-430-step
+    # VerlTool/torl-fsdp_agent-qwen_qwen2.5-coder-1.5b-grpo-n16-b128-t1.0-lr1e-6new-no-toolusepenalty-430-step
+    # VerlTool/torl-fsdp_agent-qwen_qwen2.5-coder-1.5b-grpo-n16-b128-t1.0-lr1e-6new-240-step
+    # VerlTool/Qwen2.5-Math-1.5B-TIR-SFT
+    # VerlTool/Qwen2.5-Math-1.5B-TIR-SFT-new
+    # VerlTool/acecoder-fsdp_agent-qwen_qwen2.5-coder-1.5b-grpo-n16-b128-t1.0-lr1e-6-410-step
+    # VerlTool/torl-fsdp_agent-qwen_qwen2.5-7b-grpo-n16-b128-t1.0-lr1e-6new-190-step
+    # VerlTool/torl-fsdp_agent-qwen_qwen2.5-math-1.5b-grpo-n16-b128-t1.0-lr1e-6new-320-step
+    # VerlTool/torl-fsdp_agent-qwen_qwen2.5-math-1.5b-grpo-n16-b128-t1.0-lr1e-6new-no-toolusepenalty-360-step
+    # VerlTool/torl-fsdp_agent-qwen_qwen2.5-math-1.5b-grpo-n16-b128-t1.0-lr1e-6torl_same_train-310-step
+    # VerlTool/torl-fsdp_agent-qwen_qwen2.5-coder-1.5b-grpo-n16-b128-t1.0-lr1e-6new-240-step
+    # VerlTool/mathcoder-qwen_qwen2.5-coder-1.5b-grpo-n16-b128-t1.0-lr1e-6new-no-toolusepenalty-390-step
+    # VerlTool/mathcoder-fsdp_agent-qwen_qwen2.5-coder-1.5b-grpo-n16-b128-t1.0-lr1e-6new-330-step
+    # VerlTool/Qwen2.5-Math-1.5B-TIR-SFT
+    # Qwen/Qwen2.5-Coder-1.5B-Instruct
+    # Qwen/Qwen2.5-Coder-7B-Instruct
     # VerlTool/torl-fsdp_agent-qwen_qwen2.5-math-7b-grpo-n16-b128-t1.0-lr1e-6new-v2-430-step
     # VerlTool/torl-fsdp_agent-qwen_qwen2.5-7b-grpo-n16-b128-t1.0-lr1e-6new-190-step
     # VerlTool/torl-fsdp_agent-qwen_qwen2.5-math-7b-grpo-n16-b128-t1.0-lr1e-6new-220-step
@@ -20,7 +33,7 @@ MODEL_NAMES=(
     # "VerlTool/torl-fsdp_agent-qwen_qwen2.5-math-7b-grpo-n16-b128-t1.0-lr1e-6"
     # Add more model paths here, one per line
 )
-# DATA_NAMES="math500"
+# DATA_NAMES="minerva_math"
 DATA_NAMES="gsm8k,math500,minerva_math,olympiadbench,aime24,amc23"
 SPLIT="test"
 NUM_TEST_SAMPLE=-1
@@ -40,7 +53,7 @@ for MODEL_NAME_OR_PATH in "${MODEL_NAMES[@]}"; do
         --num_test_sample ${NUM_TEST_SAMPLE} \
         --seed 0 \
         --temperature 0 \
-        --n_sampling 1 \
+        --n_sampling 8 \
         --top_p 1 \
         --start 0 \
         --end -1 \
@@ -51,4 +64,5 @@ for MODEL_NAME_OR_PATH in "${MODEL_NAMES[@]}"; do
         --overwrite \
         2>&1 | tee "logs_${MODEL_NAME_OR_PATH//\//_}.log"
 done
+
 

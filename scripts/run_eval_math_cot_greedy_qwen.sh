@@ -1,11 +1,12 @@
 set -ex
 
-export CUDA_VISIBLE_DEVICES=0,1
+export CUDA_VISIBLE_DEVICES=0,1,2,3
 # NOTE: Check if the prompt type is correct
 PROMPT_TYPE="qwen25-math-cot"
 MODEL_NAMES=(
     # Qwen/Qwen2.5-Math-1.5B-Instruct
-    VerlTool/torl-fsdp-qwen_qwen2.5-math-1.5b-grpo-n16-b128-t1.0-lr1e-6new-no-toolusepenalty-430-step
+    VerlTool/torl-deep_math-fsdp-qwen2.5-math-1.5b-grpo-n16-b128-t1.0-lr1e-6-830-step
+    # VerlTool/torl-fsdp-qwen_qwen2.5-math-1.5b-grpo-n16-b128-t1.0-lr1e-6new-no-toolusepenalty-430-step
     # VerlTool/torl-fsdp_agent-qwen_qwen2.5-coder-1.5b-grpo-n16-b128-t1.0-lr1e-6new-240-step
     # VerlTool/torl-fsdp-qwen_qwen2.5-coder-1.5b-grpo-n16-b128-t1.0-lr1e-6new-no-toolusepenalty-430-step
     # VerlTool/acecoder-fsdp_agent-qwen_qwen2.5-coder-1.5b-grpo-n16-b128-t1.0-lr1e-6-410-step

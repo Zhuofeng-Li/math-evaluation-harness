@@ -90,6 +90,8 @@ def construct_prompt(example, data_name, args):
             context = f"Question: {example['question']}\n\nSolution:"
             full_prompt = demo_prompt + context
     # SFT models
+    elif args.prompt_type in ['torl_deepmath_qwen']:
+        full_prompt = f"<|im_start|>system\nA conversation between User and Assistant. The user asks a question, and the Assistant solves it. Please integrate natural language reasoning with programs to solve the problem above, and put your final answer within \\boxed{{}}.\n<|im_end|>\n<|im_start|>user\n{example['question']}<|im_end|>\n<|im_start|>assistant\n"
     elif args.prompt_type in ['tool_math_qwen_mtrl']:
         full_prompt = f"<|im_start|>system\nA conversation between User and Assistant. The user asks a question, and the Assistant solves it. The assistant first thinks about the reasoning process in the mind and then provides the user with the answer. User: Please integrate natural language reasoning with programs to solve the problem above. If you want to run any code, include \"<|calling system for feedback|>\" at the end of your response for the current turn. Then the system will execute the code in the markdown block and provide the standard output and error. If you think the solution is complete and don't need to test, don't include \"<|calling system for feedback|>\" in the response and put your final answer within \\boxed{{}}. \n<|im_end|>\n<|im_start|>user\n{example['question']}<|im_end|>\n<|im_start|>assistant\n"
     elif args.prompt_type in ['tool_mathcoder_qwen']:
