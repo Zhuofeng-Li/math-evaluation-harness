@@ -104,6 +104,8 @@ def construct_prompt(example, data_name, args):
         full_prompt = f"system\nA conversation between User and Assistant. The user asks a question, and the Assistant solves it. The assistant first thinks about the reasoning process in the mind and then provides the user with the answer. User: Please integrate natural language reasoning with programs to solve the problem above, and put your final answer within \\boxed{{}}.:\n\nuser\n{example['question']}\nassistant\n"
     elif args.prompt_type in ['qwen-torl']:
         full_prompt = f"<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n<|im_start|>user\nPlease integrate natural language reasoning with programs to solve the problem above, and put your final answer within \\boxed{{}}.\n{example['question']}<|im_end|>\n<|im_start|>assistant\n"
+    elif args.prompt_type in ['torl_mcq']:
+        full_prompt = f"A conversation between User and Assistant. The user asks a question, and the Assistant solves it.\nUser: Please integrate natural language reasoning with programs to solve the problem above, and put your final answer within \\boxed{{}}. Please only provide the letter of the answer in the box.\n{example['question']}\nAssistant:"
     elif args.prompt_type in ['torl']:
         full_prompt = f"A conversation between User and Assistant. The user asks a question, and the Assistant solves it.\nUser: Please integrate natural language reasoning with programs to solve the problem above, and put your final answer within \\boxed{{}}.\n{example['question']}\nAssistant:"
     elif args.prompt_type in ['self-instruct', 'tora']:
@@ -133,7 +135,7 @@ def construct_prompt(example, data_name, args):
         full_prompt = (
         "<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n"
         "<|im_start|>user\nAnswer the following question. You must conduct reasoning inside <think> and </think>, and provide the final answer directly inside <answer> and </answer> without detailed explanations. For example: <answer>42</answer> Question: {instruction}<|im_end|>\n"
-        "<|im_start|>assistant\n"
+        "<|im_start|>assistant\n" 
         )
         full_prompt = full_prompt.format(instruction=example['question'])
     elif args.prompt_type == "pot-qwen-r1":
@@ -149,6 +151,16 @@ def construct_prompt(example, data_name, args):
         "<|im_start|>user\n{input}<|im_end|>\n"
         "<|im_start|>assistant\n"
         )
+        full_prompt = full_prompt.format(input=example['question'])
+    elif args.prompt_type == "qwen25-cot":
+        full_prompt = (
+        "<|im_start|>system\nYou are Qwen, created by Alibaba Cloud. You are a helpful assistant.<|im_end|>\n"
+        "<|im_start|>user\n{input}<|im_end|>\n"
+        "<|im_start|>assistant\n"
+        )
+        full_prompt = full_prompt.format(input=example['question'])
+    elif args.prompt_type == "search-r1":
+        full_prompt =    "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n<|im_start|>user\nAnswer the given question. You must conduct reasoning inside <think> and </think> first every time you get new information. After reasoning, if you find you lack some knowledge, you can call a search engine by <search> query </search> and it will return the top searched results between <information> and </information>. You can search as many times as your want. If you find no further external knowledge needed, you can directly provide the answer inside <answer> and </answer>, without detailed illustrations. For example, <answer> Beijing </answer>. Question: {input}\n<|im_end|>\n<|im_start|>assistant\n"
         full_prompt = full_prompt.format(input=example['question'])
     else:
         raise NotImplementedError(args.prompt_type)

@@ -45,13 +45,15 @@ def evaluate(data_name, prompt_type, samples: list=None, file_path: str=None, ma
                 sample['pred'].append(pred)
                 sample['report'].append(report)
 
-    params = [(idx, pred, sample['gt']) for idx, sample in enumerate(samples) for pred in sample['pred']]
+    params = [(idx, data_name, sample['question'], " ".join(sample['code']), pred, sample['gt']) for idx, sample in enumerate(samples) for pred in sample['pred']] 
 
     scores = []
+    max_workers = 8 if data_name == "gpqa_diamond_mcq" else multiprocessing.cpu_count()
+    timeout = 30 if data_name == "gpqa_diamond_mcq" else 3
     timeout_cnt = 0 
 
-    with ProcessPool() as pool:
-        future = pool.map(math_equal_process, params, timeout=3)
+    with ProcessPool(max_workers=max_workers) as pool:
+        future = pool.map(math_equal_process, params, timeout=timeout)
         iterator = future.result()
         with tqdm(total=len(samples), desc="Evaluate") as progress_bar:
             while True:
@@ -127,3 +129,7 @@ if __name__ == "__main__":
     args = parse_args()
     evaluate(data_name=args.data_name, prompt_type=args.prompt_type, file_path=args.file_path,
              max_num_samples=args.max_num_samples, execute=args.execute)
+
+"""
+python evaluate.py --data_name gpqa_diamond_mcq --prompt_type search-r1 --file_path /home/ubuntu/ext-mamba-illinois/panlu-project/zhuofeng-projects/math-evaluation-harness/results/PeterJinGo/SearchR1-nq_hotpotqa_train-qwen2.5-7b-em-ppo/gpqa_diamond_mcq/test_search-r1_-1_seed0_t1.0_p1.0_s0_e-1.jsonl
+"""

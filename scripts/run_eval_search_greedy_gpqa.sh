@@ -1,12 +1,17 @@
 set -ex
 
-export CUDA_VISIBLE_DEVICES=0,1,2,3
+export CUDA_VISIBLE_DEVICES=5,6
 # NOTE: Check if the prompt type is correct
-PROMPT_TYPE="torl"
+PROMPT_TYPE="search-r1"
 MODEL_NAMES=(
-    # ZhenghaiXue/Qwen2.5-7B-SimpleTIR
+    PeterJinGo/SearchR1-nq_hotpotqa_train-qwen2.5-7b-em-ppo
+    # Qwen/Qwen2.5-1.5B-Instruct
+    # Qwen/Qwen2.5-7B-Instruct
+    # Qwen/Qwen2.5-Math-1.5B-Instruct
     # Qwen/Qwen2.5-Math-7B-Instruct
-    GAIR/ToRL-7B
+    # ZhenghaiXue/Qwen2.5-7B-SimpleTIR
+    # GAIR/ToRL-7B
+    # Qwen/Qwen2.5-Math-7B-Instruct
     # VerlTool/torl-deep_math-fsdp_agent-qwen2.5-math-1.5b-grpo-n16-b128-t1.0-lr1e-6-320-step
     # VerlTool/torl-fsdp-qwen_qwen2.5-math-1.5b-grpo-n16-b128-t1.0-lr1e-6new-no-toolusepenalty-430-step
     # VerlTool/torl-fsdp_agent-qwen_qwen2.5-math-1.5b-grpo-n16-b128-t1.0-lr1e-6v2-reproduce-430-step
@@ -37,7 +42,7 @@ MODEL_NAMES=(
     # Add more model paths here, one per line
 )
 # DATA_NAMES="minerva_math"
-DATA_NAMES="aime24"
+DATA_NAMES="gpqa_diamond_mcq"
 SPLIT="test"
 NUM_TEST_SAMPLE=-1
 
@@ -55,16 +60,16 @@ for MODEL_NAME_OR_PATH in "${MODEL_NAMES[@]}"; do
         --prompt_type ${PROMPT_TYPE} \
         --num_test_sample ${NUM_TEST_SAMPLE} \
         --seed 0 \
-        --temperature 0 \
-        --n_sampling 8 \
+        --temperature 1.0 \
+        --n_sampling 1 \
         --top_p 1 \
         --start 0 \
         --end -1 \
         --save_outputs \
         --max_tokens_per_call 3072 \
         --use_vllm \
-        --max_func_call 4 \
         --overwrite \
+        --max_func_call 10 \
         2>&1 | tee "logs_${MODEL_NAME_OR_PATH//\//_}.log"
 done
 

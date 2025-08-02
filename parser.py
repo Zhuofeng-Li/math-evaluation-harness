@@ -305,6 +305,9 @@ def parse_ground_truth(example: Dict[str, Any], data_name):
         "gaokao2024_I",
         "gaokao2024_II",
         "imo2024",
+        "gpqa_diamond",
+        "gpqa_main",
+        "gpqa_diamond_mcq"
     ]:
         gt_cot, gt_ans = None, example["answer"]
     elif data_name in ['mathqa']:

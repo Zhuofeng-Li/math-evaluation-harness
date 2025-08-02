@@ -1,0 +1,4 @@
+[submodule "octotools"]
+	path = octotools
+	url = https://github.com/Zhuofeng-Li/octotools
+	branch = rl_training_submodule

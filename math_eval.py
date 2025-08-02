@@ -15,6 +15,7 @@ from parser import *
 from trajectory import *
 from data_loader import load_data
 from python_executor import PythonExecutor
+from search_executor import SearchExecutor
 from model_utils import load_hf_lm_and_tokenizer, generate_completions
 import csv
 
@@ -139,6 +140,8 @@ def main(llm, tokenizer, data_name, args):
     # init python executor
     if "pal" in args.prompt_type:
         executor = PythonExecutor(get_answer_expr='solution()')
+    elif "search-r1" in args.prompt_type:
+        executor = SearchExecutor()
     else:
         executor = PythonExecutor(get_answer_from_stdout=True)
 
@@ -177,7 +180,7 @@ def main(llm, tokenizer, data_name, args):
 
     if args.prompt_type in ['cot']:
         stop_words.extend(["\n\nQuestion:", "\n\nProblem:"])
-    if args.prompt_type in ['pal', 'tool-integrated', 'tora', 'torl', 'qwen-torl', 'tool_math_qwen', 'tool_mathcoder_qwen', 'torl_deepmath_qwen']:
+    if args.prompt_type in ['pal', 'tool-integrated', 'tora', 'torl', 'torl_mcq', 'qwen-torl', 'tool_math_qwen', 'tool_mathcoder_qwen', 'torl_deepmath_qwen']:
         stop_words.extend(["\n\n---", "```output"]) 
     elif args.prompt_type in ['tool_math_qwen_mtrl']:
         stop_words.extend(["\n\n---", "```output", "<|calling system for feedback|>"]) 
@@ -187,6 +190,8 @@ def main(llm, tokenizer, data_name, args):
         stop_words.extend(["assistant", "user", "_end", "_start"])
         if args.prompt_type == "pot-qwen-r1":
             stop_words.extend(["</python>"])
+    elif "search-r1" in args.prompt_type:
+        stop_words.extend(["</search>"])
     print("Stop words:", stop_words)
 
     # start inference
@@ -249,6 +254,15 @@ def main(llm, tokenizer, data_name, args):
                 program = extract_program(query)
                 remain_prompts.append((i, query))
                 remain_codes.append(program)
+            elif "search-r1" in args.prompt_type:
+                if "<search>" in output:
+                    output += "</search>"
+                    program = extract_search_program(output)
+                    query += "</search>"
+                    remain_prompts.append((i, query))
+                    remain_codes.append(program)
+                else:
+                    end_prompts.append((i, query))
             else:
                 end_prompts.append((i, query))
         
@@ -262,6 +276,8 @@ def main(llm, tokenizer, data_name, args):
                 exec_result = f"\n\n<information>{exec_result}</information>\n\n"
             elif args.prompt_type == "tool_math_qwen_mtrl":
                 exec_result = f"\n<|calling system for feedback|><|im_end|>\n<|im_start|>system\n\n```output\n{exec_result}\n\n```\n<|im_end|>\n<|im_start|>assistant\n"
+            elif "search-r1" in args.prompt_type:
+                exec_result = f"\n\n<information>{exec_result}</information>\n\n"
             else:
                 if "pal" in args.prompt_type:
                     exec_result = "\\boxed{" + exec_result + "}"
@@ -299,7 +315,8 @@ def main(llm, tokenizer, data_name, args):
         reports = [item[1] for item in result]
 
         # sample.pop('prompt')
-        sample.update({'code': code, 'pred': preds, 'report': reports})
+        answer = sample.pop('answer', None) # TODO: update
+        sample.update({'code': code, 'pred': preds, 'answer': answer, 'report': reports})
         all_samples.append(sample)
 
     # add processed samples
