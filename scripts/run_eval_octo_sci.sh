@@ -44,6 +44,7 @@ MODEL_NAMES=(
 )
 # DATA_NAMES="minerva_math"
 DATA_NAMES="aime24"
+# DATA_NAMES="mmlu_pro"
 SPLIT="test"
 NUM_TEST_SAMPLE=-1
 

@@ -314,6 +314,10 @@ def parse_ground_truth(example: Dict[str, Any], data_name):
         gt_cot = example['rationale']
         gt_ans = example['correct'].upper()
         assert gt_ans in ['A', 'B', 'C', 'D', 'E']
+    elif data_name in ['mmlu_pro']:
+        gt_cot = example['cot']
+        gt_ans = example['answer'].upper()
+        assert gt_ans in ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
     elif data_name == "gsm8k":
         gt_cot, gt_ans = example['answer'].split("####")
     elif data_name == "gsm_hard":

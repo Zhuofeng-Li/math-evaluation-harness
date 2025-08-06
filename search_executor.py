@@ -36,12 +36,9 @@ def setup_logging():
 log_printed = None
 setup_logging()  
 
-def init_worker(shared_log_printed):
-    global log_printed
-    log_printed = shared_log_printed
-
-def execute_code(code, search_tool):
+def execute_code(code, model_string):
     try:
+        search_tool = Perplexity_Tool(model_string=model_string)
         result = search_tool.execute(prompt=code)
         report = ''
     except Exception:
@@ -90,8 +87,7 @@ class PerplexitySearch:
         all_exec_results = []
         
         # with ProcessPool(max_workers=min(len(all_code_snippets), os.cpu_count(), 8)) as pool: 
-        search_tool = Perplexity_Tool(model_string=self.model_string) # less INFO logging
-        executor = partial(execute_code, search_tool)
+        executor = partial(execute_code, model_string=self.model_string)
         future = pool.map(executor, all_code_snippets, timeout=self.timeout_length)
         iterator = future.result()
 
