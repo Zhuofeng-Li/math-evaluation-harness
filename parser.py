@@ -300,6 +300,7 @@ def parse_ground_truth(example: Dict[str, Any], data_name):
         gt_cot, gt_ans = None, example["final_answer"][0].strip("$")
     elif data_name in [
         "aime24",
+        "aime25",
         "amc23",
         "cmath",
         "gaokao2024_I",
@@ -317,6 +318,10 @@ def parse_ground_truth(example: Dict[str, Any], data_name):
     elif data_name in ['mmlu_pro']:
         gt_cot = example['cot']
         gt_ans = example['answer'].upper()
+        assert gt_ans in ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+    elif data_name in ['supergpqa']:
+        gt_cot = None
+        gt_ans = example['answer'][0]
         assert gt_ans in ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
     elif data_name == "gsm8k":
         gt_cot, gt_ans = example['answer'].split("####")

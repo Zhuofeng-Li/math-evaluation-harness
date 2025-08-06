@@ -43,8 +43,8 @@ MODEL_NAMES=(
     # Add more model paths here, one per line
 )
 # DATA_NAMES="minerva_math"
-DATA_NAMES="aime24"
-# DATA_NAMES="mmlu_pro"
+DATA_NAMES="aime25"
+# DATA_NAMES="mmlu_pro,supergpqa"
 SPLIT="test"
 NUM_TEST_SAMPLE=-1
 
@@ -63,7 +63,7 @@ for MODEL_NAME_OR_PATH in "${MODEL_NAMES[@]}"; do
         --num_test_sample ${NUM_TEST_SAMPLE} \
         --seed 0 \
         --temperature 0 \
-        --n_sampling 1 \
+        --n_sampling 8 \
         --top_p 1 \
         --start 0 \
         --end -1 \
@@ -71,7 +71,7 @@ for MODEL_NAME_OR_PATH in "${MODEL_NAMES[@]}"; do
         --max_tokens_per_call 3072 \
         --use_vllm \
         --overwrite \
-        --max_func_call 5 \
+        --max_func_call 10 \
         2>&1 | tee "logs_${MODEL_NAME_OR_PATH//\//_}.log"
 done
 
