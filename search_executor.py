@@ -20,8 +20,21 @@ from concurrent.futures import TimeoutError
 import json
 import logging
 
+def setup_logging():
+    # logging level WARNING
+    logging.basicConfig(level=logging.WARNING)
+    # OpenAI logging level WARNING
+    logging.getLogger('openai').setLevel(logging.WARNING)
+    # requests logging level WARNING
+    logging.getLogger('requests').setLevel(logging.WARNING)
+    # urllib3 logging level WARNING
+    logging.getLogger('urllib3').setLevel(logging.WARNING)
+    # other logging level WARNING
+    logging.getLogger('pebble').setLevel(logging.WARNING)
+    logging.getLogger('concurrent.futures').setLevel(logging.WARNING)
+
 log_printed = None
-logging.getLogger('openai').setLevel(logging.WARNING)
+setup_logging()  
 
 def init_worker(shared_log_printed):
     global log_printed
