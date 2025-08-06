@@ -29,7 +29,7 @@ def execute_code(code, model_string):
         report = traceback.format_exc().split('\n')[-2]
     return result, report
 
-class SearchExecutor:
+class PerplexitySearch:
     def __init__(
         self,
         runtime: Optional[Any] = None,
@@ -135,7 +135,7 @@ def _test():
         """
     ]
 
-    executor = SearchExecutor(get_answer_from_stdout=True)
+    executor = PerplexitySearch(get_answer_from_stdout=True)
     predictions = executor.batch_apply(batch_code)
     print(predictions)
 

@@ -15,7 +15,7 @@ from parser import *
 from trajectory import *
 from data_loader import load_data
 from python_executor import PythonExecutor
-from search_executor import SearchExecutor
+from search_executor import PerplexitySearch
 from model_utils import load_hf_lm_and_tokenizer, generate_completions
 import csv
 
@@ -140,8 +140,8 @@ def main(llm, tokenizer, data_name, args):
     # init python executor
     if "pal" in args.prompt_type:
         executor = PythonExecutor(get_answer_expr='solution()')
-    elif "search-r1" in args.prompt_type:
-        executor = SearchExecutor()
+    elif "search-r1" in args.prompt_type or "octo-sci" in args.prompt_type:
+        executor = PerplexitySearch()
     else:
         executor = PythonExecutor(get_answer_from_stdout=True)
 
@@ -192,6 +192,8 @@ def main(llm, tokenizer, data_name, args):
             stop_words.extend(["</python>"])
     elif "search-r1" in args.prompt_type:
         stop_words.extend(["</search>"])
+    elif "octo-sci" in args.prompt_type:
+        stop_words.extend(["</tool_query>", "</answer>"])
     print("Stop words:", stop_words)
 
     # start inference
@@ -263,6 +265,16 @@ def main(llm, tokenizer, data_name, args):
                     remain_codes.append(program)
                 else:
                     end_prompts.append((i, query))
+            elif "octo-sci" in args.prompt_type:
+                if "<tool_query>" in output:
+                    output += "</tool_query>"
+                    program = extract_tool_query(output)
+                    query += "</tool_query>"
+                    remain_prompts.append((i, query))
+                    remain_codes.append(program)
+                else:
+                    query += "</answer>"
+                    end_prompts.append((i, query))
             else:
                 end_prompts.append((i, query))
         
@@ -278,6 +290,8 @@ def main(llm, tokenizer, data_name, args):
                 exec_result = f"\n<|calling system for feedback|><|im_end|>\n<|im_start|>system\n\n```output\n{exec_result}\n\n```\n<|im_end|>\n<|im_start|>assistant\n"
             elif "search-r1" in args.prompt_type:
                 exec_result = f"\n\n<information>{exec_result}</information>\n\n"
+            elif "octo-sci" in args.prompt_type:
+                exec_result = f"\n\n<tool_result>{exec_result}</tool_result>\n\n"
             else:
                 if "pal" in args.prompt_type:
                     exec_result = "\\boxed{" + exec_result + "}"

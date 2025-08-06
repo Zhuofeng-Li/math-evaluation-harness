@@ -75,6 +75,14 @@ def extract_pot_program(prediction:str=None) -> str:
     else:
         return ""
 
+def extract_tool_query(prediction: str = None) -> str:
+    pattern = r'<tool_query>(.*?)</tool_query>'
+    match = re.search(pattern, prediction, re.DOTALL)
+    if match:
+        return match.group(1).strip()
+    else:
+        return ""
+        
 def extract_search_program(prediction:str=None) -> str:
     pattern = r'<search>(.*?)</search>'
     match = re.search(pattern, prediction, re.DOTALL)

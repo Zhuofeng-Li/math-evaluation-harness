@@ -83,7 +83,7 @@ Response Format:
 <true_false>: Return "True" only for exact matches, otherwise "False"
     """
 
-    verification = llm_engine(query_prompt, response_format=AnswerVerification, max_token=16000)
+    verification = llm_engine(query_prompt, response_format=AnswerVerification, max_tokens=16000)
 
     true_false = verification.true_false
 

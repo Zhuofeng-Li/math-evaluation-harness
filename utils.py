@@ -162,6 +162,9 @@ def construct_prompt(example, data_name, args):
     elif args.prompt_type == "search-r1":
         full_prompt =    "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n<|im_start|>user\nAnswer the given question. You must conduct reasoning inside <think> and </think> first every time you get new information. After reasoning, if you find you lack some knowledge, you can call a search engine by <search> query </search> and it will return the top searched results between <information> and </information>. You can search as many times as your want. If you find no further external knowledge needed, you can directly provide the answer inside <answer> and </answer>, without detailed illustrations. For example, <answer> Beijing </answer>. Question: {input}\n<|im_end|>\n<|im_start|>assistant\n"
         full_prompt = full_prompt.format(input=example['question'])
+    elif args.prompt_type == "octo-sci":
+        full_prompt =    "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n<|im_start|>user\nAnswer the given question by calling the Search tool. You must perform your reasoning within <think> and </think> before each tool call. After reasoning, call the Search tool (described as: a tool that performs web search based on a given text query) by passing the query inside <tool_query>...</tool_query>. The tool will return its result between <tool_result> and </tool_result>. You may call the tool as many times as needed. If no further tool calls are required, provide the final answer directly within <answer>...</answer>, without additional explanation. For example: <answer> Beijing </answer>. Question: {input}\n<|im_end|>\n<|im_start|>assistant\n"
+        full_prompt = full_prompt.format(input=example['question'])
     else:
         raise NotImplementedError(args.prompt_type)
     return full_prompt
