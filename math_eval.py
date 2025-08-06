@@ -19,6 +19,8 @@ from search_executor import PerplexitySearch
 from model_utils import load_hf_lm_and_tokenizer, generate_completions
 import csv
 
+from pebble import ProcessPool
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_names", default="gsm8k,math", type=str)
@@ -102,8 +104,10 @@ def setup(args):
     # infer & eval
     data_list = args.data_names.split(',')
     results = []
-    for data_name in data_list:
-        results.append(main(llm, tokenizer, data_name, args))
+    # out from loop ProcessPool
+    with ProcessPool(max_workers=48) as pool:
+        for data_name in data_list:
+            results.append(main(pool, llm, tokenizer, data_name, args))
     
     # add "avg" result to data_list and results
     data_list.append("max_avg")
@@ -130,7 +134,7 @@ def setup(args):
     print(f"Results saved to {csv_path}")
 
 
-def main(llm, tokenizer, data_name, args):
+def main(pool, llm, tokenizer, data_name, args):
     examples, processed_samples, out_file = prepare_data(data_name, args)
     print("=" * 50)
     print("data:", data_name, " ,remain samples:", len(examples))
@@ -279,7 +283,7 @@ def main(llm, tokenizer, data_name, args):
                 end_prompts.append((i, query))
         
         # execute the remain prompts
-        remain_results = executor.batch_apply(remain_codes)
+        remain_results = executor.batch_apply(pool, remain_codes)
         for k in range(len(remain_prompts)):
             i, query = remain_prompts[k]
             res, report = remain_results[k]
@@ -335,7 +339,7 @@ def main(llm, tokenizer, data_name, args):
 
     # add processed samples
     all_samples.extend(processed_samples)
-    all_samples, result_json = evaluate(samples=all_samples, data_name=data_name, prompt_type=args.prompt_type, execute=True)
+    all_samples, result_json = evaluate(pool=pool, samples=all_samples, data_name=data_name, prompt_type=args.prompt_type, execute=True)
 
     # save outputs
     if len(processed_samples) < len(all_samples) and args.save_outputs:

@@ -1,6 +1,6 @@
 set -ex
 
-export CUDA_VISIBLE_DEVICES=0,1,2,3
+export CUDA_VISIBLE_DEVICES=0,1
 # NOTE: Check if the prompt type is correct
 PROMPT_TYPE="octo-sci"
 MODEL_NAMES=(
@@ -43,7 +43,8 @@ MODEL_NAMES=(
     # Add more model paths here, one per line
 )
 # DATA_NAMES="minerva_math"
-DATA_NAMES="aime24"
+DATA_NAMES="aime25"
+# DATA_NAMES="mmlu_pro,supergpqa"
 SPLIT="test"
 NUM_TEST_SAMPLE=-1
 
@@ -70,7 +71,7 @@ for MODEL_NAME_OR_PATH in "${MODEL_NAMES[@]}"; do
         --max_tokens_per_call 3072 \
         --use_vllm \
         --overwrite \
-        --max_func_call 5 \
+        --max_func_call 10 \
         2>&1 | tee "logs_${MODEL_NAME_OR_PATH//\//_}.log"
 done
 
