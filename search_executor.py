@@ -16,12 +16,19 @@ from functools import partial
 from timeout_decorator import timeout
 from contextlib import redirect_stdout
 from octotools.tools.perplexity.tool import Perplexity_Tool
-from concurrent.futures import ProcessPoolExecutor, TimeoutError
+from concurrent.futures import TimeoutError
 import json
+import logging
 
-def execute_code(code, model_string):
+log_printed = None
+logging.getLogger('openai').setLevel(logging.WARNING)
+
+def init_worker(shared_log_printed):
+    global log_printed
+    log_printed = shared_log_printed
+
+def execute_code(code, search_tool):
     try:
-        search_tool = Perplexity_Tool(model_string=model_string)
         result = search_tool.execute(prompt=code)
         report = ''
     except Exception:
@@ -63,40 +70,41 @@ class PerplexitySearch:
     def process_generation_to_code(self, gens: str):
         return [g.strip() for g in gens]
         
-    def batch_apply(self, batch_code):
+    def batch_apply(self, pool, batch_code):
         all_code_snippets = self.process_generation_to_code(batch_code)
 
         timeout_cnt = 0
         all_exec_results = []
         
-        with ProcessPool(max_workers=min(len(all_code_snippets), os.cpu_count(), 8)) as pool: 
-            executor = partial(execute_code, model_string=self.model_string)
-            future = pool.map(executor, all_code_snippets, timeout=self.timeout_length)
-            iterator = future.result()
+        # with ProcessPool(max_workers=min(len(all_code_snippets), os.cpu_count(), 8)) as pool: 
+        search_tool = Perplexity_Tool(model_string=self.model_string) # less INFO logging
+        executor = partial(execute_code, search_tool)
+        future = pool.map(executor, all_code_snippets, timeout=self.timeout_length)
+        iterator = future.result()
 
-            if len(all_code_snippets) > 100:  
-                progress_bar = tqdm(total=len(all_code_snippets), desc="Execute")  
-            else:  
-                progress_bar = None 
+        if len(all_code_snippets) > 100:  
+            progress_bar = tqdm(total=len(all_code_snippets), desc="Execute")  
+        else:  
+            progress_bar = None 
 
-            while True:
-                try:
-                    result = next(iterator)
-                    all_exec_results.append(result)
-                except StopIteration:
-                    break
-                except TimeoutError as error:
-                    print(error)
-                    all_exec_results.append(("", "Timeout Error"))
-                    timeout_cnt += 1
-                except Exception as error:
-                    print(error)
-                    exit()
-                if progress_bar is not None:
-                    progress_bar.update(1) 
-            
+        while True:
+            try:
+                result = next(iterator)
+                all_exec_results.append(result)
+            except StopIteration:
+                break
+            except TimeoutError as error:
+                print(error)
+                all_exec_results.append(("", "Timeout Error"))
+                timeout_cnt += 1
+            except Exception as error:
+                print(error)
+                exit()
             if progress_bar is not None:
-                progress_bar.close() 
+                progress_bar.update(1) 
+        
+        if progress_bar is not None:
+            progress_bar.close() 
 
         # batch_results = []
         # for code, (res, report) in zip(all_code_snippets, all_exec_results):

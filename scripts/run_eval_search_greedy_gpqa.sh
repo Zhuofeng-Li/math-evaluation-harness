@@ -60,7 +60,7 @@ for MODEL_NAME_OR_PATH in "${MODEL_NAMES[@]}"; do
         --prompt_type ${PROMPT_TYPE} \
         --num_test_sample ${NUM_TEST_SAMPLE} \
         --seed 0 \
-        --temperature 1.0 \
+        --temperature 0.0 \
         --n_sampling 1 \
         --top_p 1 \
         --start 0 \

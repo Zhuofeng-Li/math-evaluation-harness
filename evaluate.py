@@ -11,7 +11,7 @@ from utils import load_jsonl
 from python_executor import PythonExecutor
 
 
-def evaluate(data_name, prompt_type, samples: list=None, file_path: str=None, max_num_samples=None, execute=False):
+def evaluate(pool, data_name, prompt_type, samples: list=None, file_path: str=None, max_num_samples=None, execute=False):
     assert samples or file_path, "samples or file_path must be provided"
     if not samples:
         samples = list(load_jsonl(file_path))
@@ -48,28 +48,28 @@ def evaluate(data_name, prompt_type, samples: list=None, file_path: str=None, ma
     params = [(idx, data_name, sample['question'], " ".join(sample['code']), pred, sample['gt']) for idx, sample in enumerate(samples) for pred in sample['pred']] 
 
     scores = []
-    max_workers = 8 if data_name == "gpqa_diamond_mcq" else multiprocessing.cpu_count()
+    # max_workers = 8 if data_name == "gpqa_diamond_mcq" else multiprocessing.cpu_count()
     timeout = 30 if data_name == "gpqa_diamond_mcq" else 3
     timeout_cnt = 0 
 
-    with ProcessPool(max_workers=max_workers) as pool:
-        future = pool.map(math_equal_process, params, timeout=timeout)
-        iterator = future.result()
-        with tqdm(total=len(samples), desc="Evaluate") as progress_bar:
-            while True:
-                try:
-                    result = next(iterator)
-                    scores.append(result)
-                except StopIteration:
-                    break
-                except TimeoutError as error:
-                    print(error)
-                    scores.append(False)
-                    timeout_cnt += 1
-                except Exception as error:
-                    print(error.traceback)
-                    exit()
-                progress_bar.update(1) 
+    # with ProcessPool(max_workers=max_workers) as pool:
+    future = pool.map(math_equal_process, params, timeout=timeout)
+    iterator = future.result()
+    with tqdm(total=len(samples), desc="Evaluate") as progress_bar:
+        while True:
+            try:
+                result = next(iterator)
+                scores.append(result)
+            except StopIteration:
+                break
+            except TimeoutError as error:
+                print(error)
+                scores.append(False)
+                timeout_cnt += 1
+            except Exception as error:
+                print(error.traceback)
+                exit()
+            progress_bar.update(1) 
 
     idx = 0
     score_mat = []

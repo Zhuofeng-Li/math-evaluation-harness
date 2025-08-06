@@ -1,6 +1,6 @@
 set -ex
 
-export CUDA_VISIBLE_DEVICES=0,1,2,3
+export CUDA_VISIBLE_DEVICES=0,1
 # NOTE: Check if the prompt type is correct
 PROMPT_TYPE="octo-sci"
 MODEL_NAMES=(
@@ -62,7 +62,7 @@ for MODEL_NAME_OR_PATH in "${MODEL_NAMES[@]}"; do
         --num_test_sample ${NUM_TEST_SAMPLE} \
         --seed 0 \
         --temperature 0 \
-        --n_sampling 8 \
+        --n_sampling 1 \
         --top_p 1 \
         --start 0 \
         --end -1 \
